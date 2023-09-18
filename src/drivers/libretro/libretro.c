@@ -2303,11 +2303,31 @@ static void check_variables(bool startup)
 
 void add_powerpad_input(unsigned port, uint32 variant, uint32_t *ppdata) 
 {
-   unsigned k;
+   unsigned j[8],k,m;
+   int ppgunx[8],ppguny[8],ppgunt[8];
    const uint32_t* map = powerpadmap;
-   for (k = 0 ; k < 12 ; k++)
-   	if (input_cb(0, RETRO_DEVICE_KEYBOARD, 0, map[k]))
-            *ppdata |= (1 << k);
+   for (m = 0 ; m < 8 ; m++)
+   {
+      ppgunx[m] = input_cb( m, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_SCREEN_X );
+      ppguny[m] = input_cb( m, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_SCREEN_Y );
+      ppgunt[m] = input_cb( m, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_TRIGGER );
+      if ((ppgunx[m] >= -24128) && (ppgunx[m] <= -12981) && (ppguny[m] >= -11529) && (ppguny[m] <= -364)) j[m] = 0;
+      else if ((ppgunx[m] >= -11866) && (ppgunx[m] <= -719) && (ppguny[m] >= -11529) && (ppguny[m] <= -364)) j[m] = 1;
+      else if ((ppgunx[m] >= 396) && (ppgunx[m] <= 11543) && (ppguny[m] >= -11529) && (ppguny[m] <= -364)) j[m] = 2;
+      else if ((ppgunx[m] >= 12658) && (ppgunx[m] <= 23805) && (ppguny[m] >= -11529) && (ppguny[m] <= -364)) j[m] = 3;
+      else if ((ppgunx[m] >= -24128) && (ppgunx[m] <= -12981) && (ppguny[m] >= 2488) && (ppguny[m] <= 13653)) j[m] = 4;
+      else if ((ppgunx[m] >= -11866) && (ppgunx[m] <= -719) && (ppguny[m] >= 2488) && (ppguny[m] <= 13653)) j[m] = 5;
+      else if ((ppgunx[m] >= 396) && (ppgunx[m] <= 11543) && (ppguny[m] >= 2488) && (ppguny[m] <= 13653)) j[m] = 6;
+      else if ((ppgunx[m] >= 12658) && (ppgunx[m] <= 23805) && (ppguny[m] >= 2488) && (ppguny[m] <= 13653)) j[m] = 7;
+      else if ((ppgunx[m] >= -24128) && (ppgunx[m] <= -12981) && (ppguny[m] >= 16505) && (ppguny[m] <= 27670)) j[m] = 8;
+      else if ((ppgunx[m] >= -11866) && (ppgunx[m] <= -719) && (ppguny[m] >= 16505) && (ppguny[m] <= 27670)) j[m] = 9;
+      else if ((ppgunx[m] >= 396) && (ppgunx[m] <= 11543) && (ppguny[m] >= 16505) && (ppguny[m] <= 27670)) j[m] = 10;
+      else if ((ppgunx[m] >= 12658) && (ppgunx[m] <= 23805) && (ppguny[m] >= 16505) && (ppguny[m] <= 27670)) j[m] = 11;
+      else j[m] = 12;
+      for (k = 0 ; k < 12 ; k++)
+   	   if (input_cb(0, RETRO_DEVICE_KEYBOARD, 0, map[k]) || ((j[m] == k) && ppgunt[m]))
+               *ppdata |= (1 << k);
+   }
 }
 
 static int mzx = 0, mzy = 0;
