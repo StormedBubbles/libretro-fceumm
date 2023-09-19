@@ -1178,6 +1178,8 @@ void retro_set_input_state(retro_input_state_t cb)
    input_cb = cb;
 }
 
+int egg_gun = 0;
+
 static void update_nes_controllers(unsigned port, unsigned device)
 {
    nes_input.type[port] = device;
@@ -1199,11 +1201,13 @@ static void update_nes_controllers(unsigned port, unsigned device)
          FCEU_printf(" Player %u: Arkanoid\n", port + 1);
          break;
       case RETRO_DEVICE_POWERPADA:
+	     egg_gun = 0;
          nes_input.type[port] = RETRO_DEVICE_POWERPADA;
          FCEUI_SetInput(port, SI_POWERPADA, &nes_input.PowerPadData, 0);
          FCEU_printf(" Player %u: Power Pad\n", port + 1);
          break;
       case RETRO_DEVICE_POWERPADB:
+	     egg_gun = 1;
          nes_input.type[port] = RETRO_DEVICE_POWERPADB;
          FCEUI_SetInput(port, SI_POWERPADB, &nes_input.PowerPadData, 0);
          FCEU_printf(" Player %u: Power Pad\n", port + 1);
@@ -1570,8 +1574,8 @@ void retro_set_environment(retro_environment_t cb)
       { "Gamepad",  RETRO_DEVICE_GAMEPAD },
       { "Arkanoid", RETRO_DEVICE_ARKANOID },
       { "Zapper",   RETRO_DEVICE_ZAPPER },
-      { "Power Pad A",   RETRO_DEVICE_POWERPADA },
-      { "Power Pad B",   RETRO_DEVICE_POWERPADB },
+      { "Power Pad A + Short Order Gun",   RETRO_DEVICE_POWERPADA },
+      { "Power Pad B + Eggsplode! Gun",   RETRO_DEVICE_POWERPADB },
       { 0, 0 },
    };
 
@@ -2303,7 +2307,7 @@ static void check_variables(bool startup)
 
 void add_powerpad_input(unsigned port, uint32 variant, uint32_t *ppdata) 
 {
-   unsigned j[8],k,m;
+   unsigned j[8],k,m,n[8];
    int ppgunx[8],ppguny[8],ppgunt[8];
    const uint32_t* map = powerpadmap;
    for (m = 0 ; m < 8 ; m++)
@@ -2324,9 +2328,34 @@ void add_powerpad_input(unsigned port, uint32 variant, uint32_t *ppdata)
       else if ((ppgunx[m] >= 396) && (ppgunx[m] <= 11543) && (ppguny[m] >= 16505) && (ppguny[m] <= 27670)) j[m] = 10;
       else if ((ppgunx[m] >= 12658) && (ppgunx[m] <= 23805) && (ppguny[m] >= 16505) && (ppguny[m] <= 27670)) j[m] = 11;
       else j[m] = 12;
+      if ((ppgunx[m] >= -766) && (ppgunx[m] <= 13074) && (ppguny[m] >= -7888) && (ppguny[m] <= 5583)) n[m] = 0;
+      else if ((ppgunx[m] >= 15629) && (ppgunx[m] <= 29469) && (ppguny[m] >= -7888) && (ppguny[m] <= 5583)) n[m] = 1;
+      else if ((ppgunx[m] >= -766) && (ppgunx[m] <= 13074) && (ppguny[m] >= 17840) && (ppguny[m] <= 31311)) n[m] = 2;
+      else if ((ppgunx[m] >= 12658) && (ppgunx[m] <= 23805) && (ppguny[m] >= 17840) && (ppguny[m] <= 31311)) n[m] = 3;
+      else n[m] = 4;
       for (k = 0 ; k < 12 ; k++)
-   	   if (input_cb(0, RETRO_DEVICE_KEYBOARD, 0, map[k]) || ((j[m] == k) && ppgunt[m]))
+   	   if (input_cb(0, RETRO_DEVICE_KEYBOARD, 0, map[k]) || ((egg_gun == 1) && (j[m] == k) && ppgunt[m]))
                *ppdata |= (1 << k);
+	  if ((egg_gun == 0) && (n[m] == 0) && ppgunt[m])
+	  {
+              *ppdata |= (1 << 2);
+              *ppdata |= (1 << 3);
+	  }
+	  if ((egg_gun == 0) && (n[m] == 1) && ppgunt[m])
+	  {
+              *ppdata |= (1 << 0);
+              *ppdata |= (1 << 1);
+	  }
+	  if ((egg_gun == 0) && (n[m] == 2) && ppgunt[m])
+	  {
+              *ppdata |= (1 << 6);
+              *ppdata |= (1 << 7);
+	  }
+	  if ((egg_gun == 0) && (n[m] == 3) && ppgunt[m])
+	  {
+              *ppdata |= (1 << 4);
+              *ppdata |= (1 << 5);
+	  }
    }
 }
 
