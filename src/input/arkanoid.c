@@ -52,8 +52,8 @@ static uint8 FP_FASTAPASS(2) ReadARKFC(int w, uint8 ret) {
 }
 
 static uint32 FixX(uint32 x) {
-	x = 98 + x * 144 / 240;
-	if (x > 242) x = 242;
+	x = 80 + x * 144 / 240;
+	//if (x > 242) x = 242;
 	x = ~x;
 	return(x);
 }
@@ -67,7 +67,7 @@ static void FP_FASTAPASS(2) UpdateARKFC(void *data, int arg) {
 static INPUTCFC ARKCFC = { ReadARKFC, 0, StrobeARKFC, UpdateARKFC, 0, 0 };
 
 INPUTCFC *FCEU_InitArkanoidFC(void) {
-	FCArk.mzx = 98;
+	FCArk.mzx = 80;
 	FCArk.mzb = 0;
 	return(&ARKCFC);
 }
@@ -100,7 +100,7 @@ static void FP_FASTAPASS(3) UpdateARK(int w, void *data, int arg) {
 static INPUTC ARKC = { ReadARK, 0, StrobeARK, UpdateARK, 0, 0 };
 
 INPUTC *FCEU_InitArkanoid(int w) {
-	NESArk[w].mzx = 98;
+	NESArk[w].mzx = 80;
 	NESArk[w].mzb = 0;
 	return(&ARKC);
 }
